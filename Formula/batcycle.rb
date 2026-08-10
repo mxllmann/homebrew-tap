@@ -4,7 +4,7 @@ class Batcycle < Formula
   desc "Battery cycle history for macOS, from the system powerlog"
   homepage "https://github.com/mxllmann/batcycle"
   url "https://github.com/mxllmann/batcycle/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "2aacd0a67327083d7194852295fe69c770e58ae24aebb939ca271d7f5b4b9b4b"
+  sha256 "bf82538ff35984e36a59d0b7928050f6643b48f06c1b342187b71490462f0a28"
   license "MIT"
 
   depends_on :macos
