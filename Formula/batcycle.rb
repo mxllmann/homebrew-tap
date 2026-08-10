@@ -18,8 +18,22 @@ class Batcycle < Formula
   #
   # The cost is a Swift 6 toolchain, which Command Line Tools provides on recent
   # macOS. Homebrew guarantees CLT is present, so there is no `depends_on xcode`
-  # here; an older toolchain fails at `swift build` with the compiler's own
-  # message, which is clearer than anything this formula could substitute.
+  # here.
+  #
+  # This comment used to add that a bad toolchain "fails at `swift build` with the
+  # compiler's own message, which is clearer than anything this formula could
+  # substitute". The first install from this tap disproved that. Homebrew resolves
+  # `swift` through a shim that prefers Xcode's toolchain while exporting an SDK
+  # from Command Line Tools, and on a machine where the two sat at different
+  # versions the result was a hundred kilobytes of parse errors inside WebKit's
+  # `.swiftinterface`, naming neither batcycle nor Xcode nor anything to do.
+  #
+  # `build-app.sh` now pins the toolchain to the installation that owns the SDK,
+  # and prints a readable diagnosis if the build fails anyway. A minimum Xcode
+  # version is still deliberately absent: the versions Homebrew asks for track the
+  # host macOS, and a user on an older macOS with a matched Xcode and CLT builds
+  # this correctly. It is the disagreement that breaks, not the age, and pinning a
+  # version would refuse the install to someone for whom nothing is wrong.
 
   def install
     # The app is built FIRST, and the order is load-bearing. `Pathname#install`
