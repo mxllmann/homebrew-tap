@@ -4,7 +4,7 @@ class Batcycle < Formula
   desc "Battery cycle history for macOS, from the system powerlog"
   homepage "https://github.com/mxllmann/batcycle"
   url "https://github.com/mxllmann/batcycle/archive/refs/tags/v0.1.0.tar.gz"
-  sha256 "bf82538ff35984e36a59d0b7928050f6643b48f06c1b342187b71490462f0a28"
+  sha256 "1cc45e4640a143a1645c4e3ff3713a426d8be6568ac5a10e0496b9e05af28e82"
   license "MIT"
 
   depends_on :macos
@@ -22,12 +22,13 @@ class Batcycle < Formula
   # message, which is clearer than anything this formula could substitute.
 
   def install
-    # The CLI keeps its own name with no extension, because the filename is the
-    # command name.
-    libexec.install "batcycle", "template.html"
-    rewrite_shebang detected_python_shebang, libexec/"batcycle"
-    bin.install_symlink libexec/"batcycle"
-
+    # The app is built FIRST, and the order is load-bearing. `Pathname#install`
+    # moves rather than copies, so installing the CLI into libexec takes
+    # `batcycle` out of the staging directory — and `build-app.sh` reads
+    # `../batcycle` to stamp the bundle's CFBundleShortVersionString from the one
+    # source of truth for the version. Installed first, the build compiles
+    # cleanly and then dies on `sed: ../batcycle: No such file or directory`,
+    # with the bundle already assembled and nothing naming the real problem.
     cd "menubar" do
       system "./build-app.sh", "BatcycleMenuBar"
       # Into prefix, not bin: a .app is a directory and nothing should try to
@@ -35,6 +36,12 @@ class Batcycle < Formula
       # level up from the libexec the CLI runs from.
       prefix.install "build/BatcycleMenuBar.app"
     end
+
+    # The CLI keeps its own name with no extension, because the filename is the
+    # command name.
+    libexec.install "batcycle", "template.html"
+    rewrite_shebang detected_python_shebang, libexec/"batcycle"
+    bin.install_symlink libexec/"batcycle"
   end
 
   def caveats
